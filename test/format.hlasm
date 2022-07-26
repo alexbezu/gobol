@@ -1,0 +1,40 @@
+         TITLE 'PRTEST1/%I% %D% %T%'                                          
+***  DIF/DOF FOR THE TN3270 SCREEN
+         PRINT NOGEN                                                           
+PRTSTFD  FMT 
+         DEV   FEAT=IGNORE,PFK=(TRANS,   CMT                           X
+               'PRTRANS1 F   ',    COMMENT                             X
+               'PRTRANS1 2   ',    COMMENT                             X
+               '/FOR PRTRAN2.',    COMMENT                             X
+               'PRTRANS1 21  ',    COMMENT                             X
+               'PRTRANS1 24  ',    COMMENT                             X
+               ),DSCA=X'0090',SYSMSG=SYSMSG,TYPE=3270-A03              
+
+         DPAGE CURSOR=((3,28,CURSOR)),FILL=PT
+*...     DEVICE FIELDS FOR LINE 5                                       
+*                                                                       
+         DFLD  '-------------------------------------------------------X
+               ------------------------',POS=(5,2)                      
+*                                                                       
+*...     DEVICE FIELDS FOR LINE 6                                       
+*                                         S                              
+         DFLD  '      QWERTY UIOP ASDF GHJK L ZXCVBN M      0987654321DX
+                END    OF TEST MESSAGE     ',POS=(6,2),                X
+               ATTR=(HI) 
+COMMND   DFLD  POS=(1,11),LTH=6,ATTR=(MOD)  CMNT ONE MORE
+         DFLD  'ANDSOME EXTRA TEST TEXT (PRTRAN2)',                    X
+               POS=(1,25),ATTR=(HI)  
+         DFLD  'MFS TEST DETAIL (PRTRAN2)',POS=(1,25),ATTR=(HI) CMNT
+         DFLD  'AUTO COMPLETE PROFILES         ',POS=(05,31) COMMENT2
+*                                                                        
+PRTSTFM  MSG   TYPE=INPUT,SOR=(PRTSTFD),NXT=PRTEST1
+         MFLD  (TRANS,'PRTRAN3 E    '),LTH=13
+         MFLD  'Z',LTH=1
+         MFLD  (SCRNME,'PRTSTTST')                                            
+         MFLD  (SCRDT,DATE2)      DATE MM/DD/YY                                 
+PRTSTTST MSG  TYPE=OUTPUT,SOR=(PRTSTOD,IGNORE),NXT=PRTSTOM,FILL=PT
+LABEL    MFLD  (SCRTM,TIME)       TIME HH:MM                                    
+         MFLD  ERRREP,LTH=3,ATTR=YES 
+         MFLD  (,SCA),LTH=2                                                     
+         MFLD  OCOMM,LTH=6,FILL=C' '                                   
+         MFLD  COMMND,LTH=6  

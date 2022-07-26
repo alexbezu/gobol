@@ -1,0 +1,13 @@
+         CSECT
+INCLOS   MVC   ATOTAL,EDWD
+         MVC   TARGET+10(20,R1),SOURCE+3
+PTITLE   DS    0CL121 
+         DC    CL27' P A Y R O L L  R E P O R T'
+         DC    CL20 '  -  B I M  C O R P.'
+F1       DS    C'23'
+         MVC   ADDR1,=AL2(ADDR2)  
+         MVC   0(L'EMPID,R1),EMPID   
+         MVC   ADDR(20,R1),EMPID   
+         MVC   TARGET(40),SOURCE     
+         MVC   DST(3,R14),SOURCE     
+EDWD     DC    X'402020202020206B202020'
