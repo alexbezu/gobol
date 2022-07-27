@@ -427,7 +427,7 @@ func (s *TN3270screen) formatScreen() []byte {
 }
 
 func (s *TN3270screen) readFormat(screenfile string) {
-	ast, err := syntax.ParseFileAsm("/home/oleksii/plexer/transactions/"+screenfile+".hlasm", nil)
+	ast, err := syntax.ParseFileAsm("transactions/"+screenfile+".hlasm", nil)
 	fmt.Println(ast)
 	if err != nil {
 		panic("bad format file")

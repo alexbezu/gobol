@@ -421,9 +421,8 @@ func (s *scanner_asm) stdString() {
 // }
 
 // func Temporardebug() {
-// 	// /home/oleksii/plexer/transactions/DSN8IPD.hlasm
-// 	// /home/oleksii/gobol/test/format.hlasm
-// 	f, err := os.Open("/home/oleksii/gobol/test/format.hlasm")
+// 	// transactions/DSN8IPD.hlasm
+// 	f, err := os.Open("test/format.hlasm")
 // 	if err != nil {
 // 		return
 // 	}

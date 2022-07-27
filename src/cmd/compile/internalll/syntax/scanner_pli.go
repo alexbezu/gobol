@@ -903,9 +903,9 @@ func (s *scanner_pli) preprocessor() {
 }
 
 func Temporardebug() {
-	// /home/oleksii/plexer/tests/plisrcs/shrdarray.pli
-	// /home/oleksii/plexer/tests/plisrcs/dcls.pli
-	f, err := os.Open("/home/oleksii/plexer/transactions/DSN8IP8.pli")
+	// test/plisrcs/shrdarray.pli
+	// test/plisrcs/dcls.pli
+	f, err := os.Open("transactions/DSN8IP8.pli")
 	if err != nil {
 		return
 	}
