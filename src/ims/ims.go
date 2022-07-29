@@ -4,6 +4,7 @@ import (
 	"context"
 	"gobol/src/pl"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -156,10 +157,13 @@ func TDLI(parcnt int, IMS_FUNC string, pcb pl.Objer, IO_AREA pl.Objer, SSAs ...s
 }
 
 func connect2db() {
-	const address = "localhost:3322"
-	conn, err = grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	host, port := os.Getenv("DBHOST"), os.Getenv("DBPORT")
+	log.Print("Trying to connect to MQ: ")
+	conn, err = grpc.Dial(host+":"+port, grpc.WithInsecure(), grpc.WithReturnConnectionError())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
+	} else {
+		log.Print("Connected!")
 	}
 
 	c = schema.NewImmuServiceClient(conn)

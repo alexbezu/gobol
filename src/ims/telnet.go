@@ -105,7 +105,6 @@ var PFKs = [...]uint8{aidENTER, aidPF1, aidPF2, aidPF3, aidPF4, aidPF5, aidPF6, 
 	aidPF15, aidPF16, aidPF17, aidPF18, aidPF19, aidPF20, aidPF21, aidPF22, aidPF23, aidPF24, aidOICR}
 
 func TN3270Eserver() {
-
 	l, err := net.Listen("tcp", ":23567")
 	// l, err := net.ListenTCP("tcp", &net.TCPAddr{IP: []byte{0, 0, 0, 0}, Port: 23567})
 	if err != nil {

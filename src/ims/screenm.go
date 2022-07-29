@@ -7,6 +7,7 @@ import (
 	"gobol/src/cmd/compile/internalll/syntax"
 	"gobol/src/pl"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -427,7 +428,8 @@ func (s *TN3270screen) formatScreen() []byte {
 }
 
 func (s *TN3270screen) readFormat(screenfile string) {
-	ast, err := syntax.ParseFileAsm("transactions/"+screenfile+".hlasm", nil)
+	dir := os.Getenv("TN3270DIR")
+	ast, err := syntax.ParseFileAsm(dir+"/"+screenfile+".hlasm", nil)
 	fmt.Println(ast)
 	if err != nil {
 		panic("bad format file")
