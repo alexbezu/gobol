@@ -3,7 +3,8 @@ package macros
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"gobol/src/cmd/compile/internalll/syntax"
+
+	"github.com/alexbezu/gobol/cmd/compile/internalll/syntax"
 )
 
 var Macroses = map[string]func(syntax.Line, int) string{}

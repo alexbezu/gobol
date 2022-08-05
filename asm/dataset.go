@@ -2,8 +2,9 @@ package asm
 
 import (
 	"bufio"
-	"gobol/src/pl"
 	"os"
+
+	"github.com/alexbezu/gobol/pl"
 )
 
 type DCB struct {

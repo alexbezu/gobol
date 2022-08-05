@@ -4,13 +4,13 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"gobol/src/cmd/compile/internalll/syntax"
-	"gobol/src/pl"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 
+	"github.com/alexbezu/gobol/cmd/compile/internalll/syntax"
+	"github.com/alexbezu/gobol/pl"
 	"github.com/codenotary/immudb/pkg/api/schema"
 )
 

@@ -1,9 +1,9 @@
 package translate
 
 import (
-	// "gobol/src/asm/macros"
-	"gobol/src/cmd/compile/internalll/syntax"
-	"gobol/src/cmd/compile/internalll/translate/macros"
+	// "github.com/alexbezu/gobol/asm/macros"
+	"github.com/alexbezu/gobol/cmd/compile/internalll/syntax"
+	"github.com/alexbezu/gobol/cmd/compile/internalll/translate/macros"
 )
 
 type instruction_f func(syntax.Line) string

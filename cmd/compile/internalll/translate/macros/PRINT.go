@@ -1,7 +1,7 @@
 package macros
 
 import (
-	"gobol/src/cmd/compile/internalll/syntax"
+	"github.com/alexbezu/gobol/cmd/compile/internalll/syntax"
 )
 
 func print(line syntax.Line, traverse int) string {

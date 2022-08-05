@@ -1,6 +1,6 @@
 package macros
 
-import "gobol/src/cmd/compile/internalll/syntax"
+import "github.com/alexbezu/gobol/cmd/compile/internalll/syntax"
 
 func USING(line syntax.Line, traverse int) string {
 	return ""

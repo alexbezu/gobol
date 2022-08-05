@@ -2,7 +2,8 @@ package asm
 
 import (
 	"fmt"
-	"gobol/src/pl"
+
+	"github.com/alexbezu/gobol/pl"
 )
 
 type Register interface {

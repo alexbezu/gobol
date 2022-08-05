@@ -1,6 +1,6 @@
 package ds
 
-import "gobol/src/pl"
+import "github.com/alexbezu/gobol/pl"
 
 var dsect *pl.CL_0
 var location_counter uint32

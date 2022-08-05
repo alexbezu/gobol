@@ -5,10 +5,11 @@ package main
 
 import (
 	"fmt"
-	"gobol/src/cmd/compile/internalll/syntax"
-	"gobol/src/cmd/compile/internalll/translate"
-	"gobol/src/ims"
 	"os"
+
+	"github.com/alexbezu/gobol/cmd/compile/internalll/syntax"
+	"github.com/alexbezu/gobol/cmd/compile/internalll/translate"
+	"github.com/alexbezu/gobol/ims"
 )
 
 func main() {

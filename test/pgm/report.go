@@ -1,9 +1,9 @@
 package test222
 
 import (
-	"gobol/src/asm"
-	"gobol/src/asm/ds"
-	"gobol/src/pl"
+	"github.com/alexbezu/gobol/asm"
+	"github.com/alexbezu/gobol/asm/ds"
+	"github.com/alexbezu/gobol/pl"
 )
 
 // PRINT("ON", "NOGEN")

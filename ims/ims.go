@@ -2,12 +2,12 @@ package ims
 
 import (
 	"context"
-	"gobol/src/pl"
 	"log"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/alexbezu/gobol/pl"
 	"github.com/codenotary/immudb/pkg/api/schema"
 	"google.golang.org/grpc"
 )
