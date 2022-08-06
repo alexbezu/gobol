@@ -3,9 +3,9 @@ module github.com/alexbezu/gobol
 go 1.15
 
 require (
+	github.com/alexbezu/gobol/cmd v0.0.0-20220806084713-011edb07e99f
 	github.com/codenotary/immudb v1.3.1
 	google.golang.org/grpc v1.39.0
-	github.com/alexbezu/gobol/cmd v0.0.0
 )
 
 replace github.com/alexbezu/gobol/cmd => ./cmd
