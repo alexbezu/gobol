@@ -1,10 +1,11 @@
-module gobol
+module github.com/alexbezu/gobol
 
 go 1.15
 
 require (
 	github.com/codenotary/immudb v1.3.1
 	google.golang.org/grpc v1.39.0
+	github.com/alexbezu/gobol/cmd v0.0.0
 )
 
 replace github.com/alexbezu/gobol/cmd => ./cmd
