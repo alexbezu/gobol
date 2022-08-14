@@ -6,6 +6,8 @@ graph LR;
  ingress;
  service<-->|3322:3322|pod1[Transaction1];
  service-->|3322:3322|pod2[Transaction2];
+ service-->pod4(StateFulSet);
+ ingress<-->pod3(PersistVolume);
  end
  classDef plain fill:#ddd,stroke:#fff,stroke-width:4px,color:#000;
  classDef k8s fill:#326ce5,stroke:#fff,stroke-width:4px,color:#fff;
