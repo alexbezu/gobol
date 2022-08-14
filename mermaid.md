@@ -1,3 +1,4 @@
+```mermaid
 graph LR;
  client([client])-. 23:23567 .->ingress[3270 server];
  ingress-->|3322:3322|service[immudb];
@@ -12,3 +13,4 @@ graph LR;
  class ingress,service,pod1,pod2 k8s;
  class client plain;
  class cluster cluster;
+ ```
