@@ -4,14 +4,12 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/alexbezu/gobol/cmd/compile/internalll/syntax"
 	"github.com/alexbezu/gobol/pl"
-	"github.com/codenotary/immudb/pkg/api/schema"
 )
 
 // TN3270 Code table to transalte buffer addresses
@@ -315,60 +313,6 @@ func (s *TN3270screen) POS(r, c int) (ret [2]byte) {
 	ret[0] = code_table[(address>>6)&0x3F]
 	ret[1] = code_table[address&0x3F]
 	return ret
-}
-
-func (s *TN3270screen) MFLDsend(AID uint8) {
-	// set special label (pass pressed PFK to MFLD if label exists here)
-	if s.PFKlabel != "" {
-		_, ok := s.MFLDin.I[s.PFKlabel]
-		if ok {
-			s.MFLDin.I[s.PFKlabel].Set(s.PFK[AID])
-		}
-	}
-	// copy DFLD to MFLD
-	for _, field := range *s.DFLD {
-		_, ok := s.MFLDin.I[field.label]
-		if ok {
-			s.MFLDin.I[field.label].Set(field.value.String())
-		}
-	}
-	s.MFLDin.I["lterm"].Set(s.Lterm)
-	var put schema.MQputRequest
-	put.Value = append(put.Value, *s.MFLDin.GetBuff()...)
-	put.Qname = s.TRAN
-	for len(put.Qname) < 8 {
-		put.Qname += " "
-	}
-	_, err := c.MQput(ctx, &put)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func (s *TN3270screen) MFLDrecieve() {
-	var rpl *schema.MQpopReply
-	var get schema.MQpopRequest
-	get.Qname = s.Lterm
-	rpl, err = c.MQpop(ctx, &get)
-	if err != nil {
-		log.Fatal(err)
-	}
-	copy(*s.MFLDout.GetBuff(), rpl.Value)
-
-	// this is message switch
-	// if s.MFLDout.I["newformat"].String() != "" {
-	// 			 this.readFormat(String(this.MFLDout.root.newformat));
-	// 			 buf.copy(this.MFLDout.inArea.buf, 0, 0, this.MFLDout.inArea.size);
-	// 			 this.MFLDout.inArea.bump_subs();
-	// }
-
-	//copy MFLD to DFLD
-	for _, dfield := range *s.DFLD {
-		mfld, ok := s.MFLDout.I[dfield.label]
-		if ok {
-			dfield.value.Set(mfld)
-		}
-	}
 }
 
 func (s *TN3270screen) init() { //clear in js

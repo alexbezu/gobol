@@ -10,6 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${file}",
+            "buildFlags": "-tags immudb" ,
             "env": {"TN3270DIR": "/home/oleksii/plexer/transactions/",
                     "DBHOST":"localhost",
                     "DBPORT":"3322"},

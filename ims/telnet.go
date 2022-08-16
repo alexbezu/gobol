@@ -113,8 +113,7 @@ func TN3270Eserver() {
 	defer l.Close()
 
 	connect2db()
-	defer conn.Close()
-	defer cancel()
+	defer closedb()
 
 	for {
 		conn, err := l.Accept()

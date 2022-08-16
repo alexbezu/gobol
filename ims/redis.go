@@ -1,4 +1,4 @@
-//go:build immudb
+//go:build redis
 
 package ims
 
@@ -7,22 +7,20 @@ import (
 	"log"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/alexbezu/gobol/pl"
-	"github.com/codenotary/immudb/pkg/api/schema"
-	"google.golang.org/grpc"
+	"github.com/go-redis/redis/v9"
 )
 
 // some kind of singleton for tcp
-var conn *grpc.ClientConn
+var client *redis.Client
 var err error
-var c schema.ImmuServiceClient
 var ctx context.Context
-var cancel context.CancelFunc
+
+// var cancel context.CancelFunc
 
 func DLI(IMS_FUNC string, pcb pl.Objer, IO_AREA pl.Objer, SSAs ...string) {
-	if conn == nil {
+	if client == nil {
 		connect2db()
 	}
 	var iopcb = pl.NUMED(pl.NumT{
@@ -119,11 +117,6 @@ func DLI(IMS_FUNC string, pcb pl.Objer, IO_AREA pl.Objer, SSAs ...string) {
 	} else {
 		switch IMS_FUNC {
 		case "GU  ", "GN  ":
-			var rpl *schema.MQpopReply
-			rpl, err = c.MQpop(ctx, &schema.MQpopRequest{Qname: iopcb.I["mod_name"].String()})
-			if err != nil {
-				log.Fatal(err)
-			}
 			// fmt.Println(popresp)
 
 			copy(*iopcb.GetBuff(), rpl.Value[0:8])
@@ -131,15 +124,11 @@ func DLI(IMS_FUNC string, pcb pl.Objer, IO_AREA pl.Objer, SSAs ...string) {
 
 			iopcb.I["status"].Set("  ")
 		case "ISRT":
-			var put schema.MQputRequest
-
 			lterm := pl.CHAR(8).INIT(strings.Repeat(" ", 8))
 			if len(SSAs) > 0 { //set new format at first 8 bytes
 				lterm.Set(SSAs[0])
 			}
-			put.Value = append(put.Value, *lterm.GetBuff()...)
-			put.Value = append(put.Value, *IO_AREA.GetBuff()...)
-			put.Qname = iopcb.I["lterm_name"].String()
+
 			_, err := c.MQput(ctx, &put)
 			if err != nil {
 				log.Fatal(err)
@@ -161,72 +150,23 @@ func TDLI(parcnt int, IMS_FUNC string, pcb pl.Objer, IO_AREA pl.Objer, SSAs ...s
 func connect2db() {
 	host, port := os.Getenv("DBHOST"), os.Getenv("DBPORT")
 	log.Print("Trying to connect to MQ: ")
-	conn, err = grpc.Dial(host+":"+port, grpc.WithInsecure(), grpc.WithReturnConnectionError())
-	if err != nil {
+	conn := redis.NewClient(&redis.Options{
+		Addr:     host + ":" + port,
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	if conn != nil {
 		log.Fatalf("did not connect: %v", err)
 	} else {
 		log.Print("Connected!")
 	}
 
-	c = schema.NewImmuServiceClient(conn)
-	ctx, cancel = context.WithTimeout(context.Background(), time.Hour)
+	ctx = context.TODO()
+
 }
 
 func closedb() {
-	conn.Close()
-	cancel()
-}
-
-func (s *TN3270screen) MFLDsend(AID uint8) {
-	// set special label (pass pressed PFK to MFLD if label exists here)
-	if s.PFKlabel != "" {
-		_, ok := s.MFLDin.I[s.PFKlabel]
-		if ok {
-			s.MFLDin.I[s.PFKlabel].Set(s.PFK[AID])
-		}
-	}
-	// copy DFLD to MFLD
-	for _, field := range *s.DFLD {
-		_, ok := s.MFLDin.I[field.label]
-		if ok {
-			s.MFLDin.I[field.label].Set(field.value.String())
-		}
-	}
-	s.MFLDin.I["lterm"].Set(s.Lterm)
-	var put schema.MQputRequest
-	put.Value = append(put.Value, *s.MFLDin.GetBuff()...)
-	put.Qname = s.TRAN
-	for len(put.Qname) < 8 {
-		put.Qname += " "
-	}
-	_, err := c.MQput(ctx, &put)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func (s *TN3270screen) MFLDrecieve() {
-	var rpl *schema.MQpopReply
-	var get schema.MQpopRequest
-	get.Qname = s.Lterm
-	rpl, err = c.MQpop(ctx, &get)
-	if err != nil {
-		log.Fatal(err)
-	}
-	copy(*s.MFLDout.GetBuff(), rpl.Value)
-
-	// this is message switch
-	// if s.MFLDout.I["newformat"].String() != "" {
-	// 			 this.readFormat(String(this.MFLDout.root.newformat));
-	// 			 buf.copy(this.MFLDout.inArea.buf, 0, 0, this.MFLDout.inArea.size);
-	// 			 this.MFLDout.inArea.bump_subs();
-	// }
-
-	//copy MFLD to DFLD
-	for _, dfield := range *s.DFLD {
-		mfld, ok := s.MFLDout.I[dfield.label]
-		if ok {
-			dfield.value.Set(mfld)
-		}
-	}
+	client.Close()
+	// cancel()
 }
