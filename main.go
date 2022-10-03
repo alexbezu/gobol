@@ -16,12 +16,12 @@ func main() {
 	// ast, _ := syntax.ParseFileAsm("../test/dcds.hlasm", nil)
 	// fmt.Println(ast)
 	/* var iopcb = &struct {
-		Lterm_name *pl.Char
-		Reserved   *pl.Char
-		Status     *pl.Char
-		Date_time  *pl.Char
-		Msg_seq    *pl.Char
-		Mod_name   *pl.Char
+		Lterm_name *pl.Char `L:"8", INIT:"DEFAULT"`
+		Reserved   *pl.Char `L:"2", INIT:"io"`
+		Status     *pl.Char `L:"2", INIT:"  "`
+		Date_time  *pl.Char `L:"8", INIT:"20220124"`
+		Msg_seq    *pl.Char `L:"4"`
+		Mod_name   *pl.Char `L:"8"`
 	}{
 		Lterm_name: pl.CHAR(8).INIT("DEFAULT"),
 		Reserved:   pl.CHAR(2).INIT("io"),

@@ -3,7 +3,6 @@ package ims
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -374,7 +373,6 @@ func (s *TN3270screen) formatScreen() []byte {
 func (s *TN3270screen) readFormat(screenfile string) {
 	dir := os.Getenv("TN3270DIR")
 	ast, err := syntax.ParseFileAsm(dir+"/"+screenfile+".hlasm", nil)
-	fmt.Println(ast)
 	if err != nil {
 		panic("bad format file")
 	}

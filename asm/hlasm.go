@@ -182,11 +182,14 @@ func LH(R1 byte, DXB2 *pl.Fixed_bin) {
 // 'MVC':        ('D2','D1(L,B1),D2(B2)',    'LL BD DD BD DD'),
 func MVC(D1 pl.Objer, D2 pl.Objer, length ...byte) {
 	// MVC  WRIRANGE,=AL2(WRIEQ)    mvc(WRIRANGE,p(...))
-	// MVC  0(L'EMPID,R1),EMPID     MVC(asm.R[R1].P(0), EMPID, asm.L(EMPID))
-	// MVC  TARGET(40),SOURCE       MVC(TARGET.P(40), SOURCE)
-	// MVC  TARGET+10(20),SOURCE+3  MVC(TARGET.P(40), SOURCE.P(3), 20) SubStringSet
+	// MVC  0(L'EMPID,R1),EMPID     MVC(asm.R[R1].P(0), EMPID, len(EMPID))
+	// MVC  TARGET(40),SOURCE       MVC(TARGET, SOURCE, 40)
+	// MVC  TARGET+10(20),SOURCE+3  MVC(TARGET.P(10), SOURCE.P(3), 20) SubStringSet
 	// MVC  DST(3,R14),SOURCE       MVC(asm.R[14].P(DST), SOURCE, 3) MOVE 3 BYTES FROM SOURCE TO THE ADDRESS BEGINNING AT REGISTER 14 PLUS DST displasement (offset)
+	//                              MVC(DST.B1(R14), SOURCE, 3)
+	//								MVC(DST, asm.R[14], SOURCE, asm.B2, 3)
 	// MVC  TARGET+1(132),TARGET    MVC(TARGET.P(1), TARGET, 132) MOVES THE FIRST BLANK TO CHARACTER 2, WHICH MOVES TO CHAR. 3, THEN 4 AND SO ON
+	// MVC BB(L'=C'RAY'),=C'RAY'
 	LL := D1.GetSize()
 	if len(length) > 0 {
 		LL = uint32(length[0])

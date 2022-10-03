@@ -6,6 +6,8 @@ import (
 	"log"
 	"net"
 	"strings"
+
+	"github.com/alexbezu/gobol/pl"
 )
 
 const (
@@ -209,22 +211,21 @@ func screenHandler(arrdata []byte, screen *TN3270screen) bool {
 		}
 	}
 
-	// if AID == aidENTER {
-	//     var formatted = data.toString("ebcdic2ascii").toUpperCase();
-	//     let i = formatted.indexOf("/FOR ");
-	//     if (i >= 0) {
-	//         try {
-	//             const screnname = formatted.slice(i + 5, -2).trim();
-	//             if (screen.readFormat(screnname) === "")
-	//                 return true;
-	//         } catch (e) {
-	//             console.error(e);
-	//         }
-	//     }
-	//     i = formatted.indexOf("/QUIT");
-	//     if (i >= 0)
-	//         return false;
-	//}
+	if AID == aidENTER {
+		input := pl.CHAR(uint32(len(arrdata)))
+		input.CopyBuff(arrdata)
+		formatted := strings.ToUpper(input.String())
+		i := strings.Index(formatted, "/FOR ")
+		if i >= 0 {
+			screnname := strings.TrimSpace(formatted[i+5 : len(formatted)-2])
+			screen.readFormat(screnname)
+			return true
+		}
+		i = strings.Index(formatted, "/QUIT")
+		if i >= 0 {
+			return false
+		}
+	}
 
 	screen.MFLDsend(AID)
 
