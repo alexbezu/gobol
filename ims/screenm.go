@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alexbezu/gobol/cmd/compile/internalll/syntax"
 	"github.com/alexbezu/gobol/pl"
@@ -181,6 +182,8 @@ func (s *TN3270screen) dfld(line syntax.Line, line_inc uint8) {
 					tmp.attributes &= 0b01111111
 				case "MOD":
 					tmp.attributes |= attrsMOD
+				case "NOMOD":
+					tmp.attributes &= ^attrsMOD
 				case "ALPHA":
 					tmp.attributes |= attrsALPHA
 				default:
@@ -256,11 +259,21 @@ func (s *TN3270screen) mfld(line syntax.Line, line_inc uint8) {
 			} else {
 				s.MFLDout.I[label] = pl.CHAR(uint32(LEN)) // s.MFLDout.I[POS] = {"STR": new pl.CHAR(LEN)};
 			}
-			if STR != "" {
+		} //else {
+		// 	panic("MSGTYPE == OUTPUT no length")
+		// }
+		if STR != "" {
+			switch STR {
+			case "DATE2":
+				for _, field := range *s.DFLD { // TODO: label2pos map
+					if label == field.label {
+						now := time.Now()
+						field.value.Set(now.Format("02/01/06"))
+					}
+				}
+			default:
 				s.MFLDout.I[label].Set(STR)
 			}
-		} else {
-			panic("MSGTYPE == OUTPUT no length")
 		}
 	} else {
 		panic("MSGTYPE nor INPUT nor OUTPUT either")
