@@ -163,6 +163,9 @@ func LA(R1 byte, DXB2 pl.Objer) {
 	}
 	R[R1] = R[R1].P(DXB2.GetOffset())
 }
+func LA1(R1, D2, X2, B2 byte) {
+
+}
 
 // 'LCR':        ('13','R1,R2',              'RR'),
 // 'LH':         ('48','R1,D2(X2,B2)',       'RX BD DD'),
@@ -200,6 +203,9 @@ func MVC(D1 pl.Objer, D2 pl.Objer, length ...byte) {
 		destBuff[int(D1.GetOffset()+i)] = sourceBuff[int(D2.GetOffset()+i)]
 	}
 	var _ = D1.String()
+}
+func MVC1(D1 pl.Objer, L byte, B1 byte, D2 pl.Objer, B2 byte) {
+
 }
 
 // 'MVCIN':      ('E8','D1(L,B1),D2(B2)',    'LL BD DD BD DD'),
