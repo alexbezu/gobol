@@ -79,6 +79,8 @@ func (t *Translator_asm) Compile_tree(tree *syntax.File_asm) {
 		// case "IC":
 		// case "ICM":
 		// case "L":
+		case "L":
+			t.Src += t.l(line)
 		case "LA":
 			t.Src += t.la(line)
 		// case "LCR":
@@ -238,9 +240,30 @@ func (t *Translator_asm) ed(line syntax.Line) string {
 	return t.label(line.Label) + "asm.ED(" + params[0].ParamName + ", " + params[1].ParamName + ")\n"
 }
 
-func (t *Translator_asm) la(line syntax.Line) string {
+func (t *Translator_asm) l(line syntax.Line) string {
+	var R1, D2, X2, B2 string
+	X2 = "0"
+	B2 = "0"
 	params := line.Params
-	return t.label(line.Label) + "asm.LA(" + params[0].ParamName + ", " + params[1].ParamName + ")\n"
+	R1 = params[0].ParamName
+	if params[0].ParamName == "number" {
+		R1 = params[0].Values[0].Value
+	}
+	D2 = params[2].ParamName
+	return t.label(line.Label) + "asm.L(" + R1 + ", " + D2 + ", " + X2 + ", " + B2 + ")\n"
+}
+
+func (t *Translator_asm) la(line syntax.Line) string {
+	var R1, D2, X2, B2 string
+	X2 = "0"
+	B2 = "0"
+	params := line.Params
+	R1 = params[0].ParamName
+	if params[0].ParamName == "number" {
+		R1 = params[0].Values[0].Tok.String()
+	}
+	D2 = params[1].ParamName
+	return t.label(line.Label) + "asm.LA(" + R1 + ", " + D2 + ", " + X2 + ", " + B2 + ")\n"
 }
 
 func (t *Translator_asm) mvc(line syntax.Line) (ret string) {

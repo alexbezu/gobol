@@ -173,6 +173,8 @@ func (s *TN3270screen) dfld(line syntax.Line, line_inc uint8) {
 				switch attr.Value {
 				case "PROT":
 					tmp.attributes |= attrsPROT
+				case "NOPROT":
+					tmp.attributes &= ^attrsPROT
 				case "NUM":
 					tmp.attributes |= attrsNUM
 				case "HI":
@@ -186,8 +188,8 @@ func (s *TN3270screen) dfld(line syntax.Line, line_inc uint8) {
 					tmp.attributes &= ^attrsMOD
 				case "ALPHA":
 					tmp.attributes |= attrsALPHA
-				default:
-					panic("dfld unknown ATTR")
+					// default:
+					// 	panic("dfld unknown ATTR")
 				}
 
 			}
@@ -290,6 +292,8 @@ func (s *TN3270screen) msg(line syntax.Line) {
 		case "SOR":
 		case "NXT":
 		case "FILL":
+		case "OPT":
+		case "PAGE":
 		default:
 			panic("MSG Unknown param: " + param.ParamName)
 		}

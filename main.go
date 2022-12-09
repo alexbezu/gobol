@@ -23,12 +23,12 @@ func main() {
 		Msg_seq    *pl.Char `L:"4"`
 		Mod_name   *pl.Char `L:"8"`
 	}{
-		Lterm_name: pl.CHAR(8).INIT("DEFAULT"),
-		Reserved:   pl.CHAR(2).INIT("io"),
-		Status:     pl.CHAR(2).INIT("  "),
-		Date_time:  pl.CHAR(8).INIT("20220124"),
-		Msg_seq:    pl.CHAR(4),
-		Mod_name:   pl.CHAR(8),
+		// Lterm_name: pl.CHAR(8).INIT("DEFAULT"),
+		// Reserved:   pl.CHAR(2).INIT("io"),
+		// Status:     pl.CHAR(2).INIT("  "),
+		// Date_time:  pl.CHAR(8).INIT("20220124"),
+		// Msg_seq:    pl.CHAR(4),
+		// Mod_name:   pl.CHAR(8),
 	}
 	pl.InitNumed(iopcb) */
 
@@ -72,17 +72,31 @@ func main() {
 	case "tn3270e":
 		ims.TN3270Eserver()
 	case "asm":
+		file := os.Args[len(os.Args)-1]
+		ast, err := syntax.ParseFileAsm(file, nil)
+		check(err)
+		var tr translate.Translator_asm
+		tr.Precompile_tree(ast)
+		tr.Compile_tree(ast)
+
 		switch os.Args[2] {
-		case "run":
-			file := os.Args[3]
-			ast, _ := syntax.ParseFileAsm(file, nil)
-			var tr translate.Translator_asm
-			tr.Precompile_tree(ast)
-			tr.Compile_tree(ast)
-			fmt.Println(tr.Src)
-		case "save":
+		case "-o":
+			outfile := os.Args[3]
+			f, err := os.Create(outfile)
+			check(err)
+			defer f.Close()
+			_, err = f.WriteString(tr.Src)
+			check(err)
+
 		default:
+			fmt.Println(tr.Src)
 		}
 	default:
+	}
+}
+
+func check(e error) {
+	if e != nil {
+		panic(e)
 	}
 }
