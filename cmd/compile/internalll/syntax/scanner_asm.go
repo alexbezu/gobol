@@ -72,7 +72,7 @@ func (s *scanner_asm) next() {
 				}
 				if s.col == 72 && s.ch == 'X' {
 					s.nextch()
-					for s.ch == ' ' || s.ch == '\n' {
+					for s.ch == ' ' || s.ch == '\n' || s.ch == '\r' {
 						s.nextch()
 					}
 					goto symbols

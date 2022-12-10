@@ -249,7 +249,7 @@ func (t *Translator_asm) l(line syntax.Line) string {
 	if params[0].ParamName == "number" {
 		R1 = params[0].Values[0].Value
 	}
-	D2 = params[2].ParamName
+	D2 = params[1].ParamName
 	return t.label(line.Label) + "asm.L(" + R1 + ", " + D2 + ", " + X2 + ", " + B2 + ")\n"
 }
 
@@ -260,7 +260,7 @@ func (t *Translator_asm) la(line syntax.Line) string {
 	params := line.Params
 	R1 = params[0].ParamName
 	if params[0].ParamName == "number" {
-		R1 = params[0].Values[0].Tok.String()
+		R1 = params[0].Values[0].Value
 	}
 	D2 = params[1].ParamName
 	return t.label(line.Label) + "asm.LA(" + R1 + ", " + D2 + ", " + X2 + ", " + B2 + ")\n"

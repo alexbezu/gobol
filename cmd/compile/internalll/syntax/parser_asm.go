@@ -132,7 +132,7 @@ func (p *parser_asm) lines() (l Line) {
 		if p.tok == _EOF_asm {
 			break
 		}
-		if p.tok != _Newline_asm {
+		if p.tok != _Newline_asm && p.tok != _Comma_asm {
 			var param Param
 			param.ParamName, param.Values = p.param()
 			l.Params = append(l.Params, param)

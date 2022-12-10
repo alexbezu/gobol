@@ -224,8 +224,13 @@ func (s *TN3270screen) mfld(line syntax.Line, line_inc uint8) {
 		case "list":
 			// MFLD (DATE,DATE2)
 			// MFLD (ENTERLBL,'DEFAULT STR IF press enter')
-			label = param.Values[0].Value
-			STR = param.Values[1].Value
+			if len(param.Values) < 2 {
+				label = "empty"
+				STR = param.Values[0].Value
+			} else {
+				label = param.Values[0].Value
+				STR = param.Values[1].Value
+			}
 			if label == s.PFKlabel && STR != "" {
 				s.PFK[aidENTER] = STR
 			}
@@ -265,16 +270,23 @@ func (s *TN3270screen) mfld(line syntax.Line, line_inc uint8) {
 		// 	panic("MSGTYPE == OUTPUT no length")
 		// }
 		if STR != "" {
+			var field field
+			for _, field = range *s.DFLD { // TODO: label2pos map
+				if label == field.label {
+					break
+				}
+			}
+
 			switch STR {
 			case "DATE2":
-				for _, field := range *s.DFLD { // TODO: label2pos map
-					if label == field.label {
-						now := time.Now()
-						field.value.Set(now.Format("02/01/06"))
-					}
-				}
+				now := time.Now()
+				field.value.Set(now.Format("02/01/06"))
+			case "TIME":
+				now := time.Now()
+				field.value.Set(now.Format("15:04"))
 			default:
-				s.MFLDout.I[label].Set(STR)
+				field.value.Set(STR)
+				// s.MFLDout.I[label].Set(STR)
 			}
 		}
 	} else {
