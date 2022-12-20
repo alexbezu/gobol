@@ -38,6 +38,7 @@ func equ(line syntax.Line, traverse int) string {
 func dc(line syntax.Line, traverse int) (ret string) {
 	//EMPTY    DC    CL1' '    | var EMPTY = pl.CHAR(1).INIT(" ")
 	//EDWD     DC    X'402020' | var EDWD = ds.X(0x40, 0x20, 0x20)
+	//BFIELD   DC    F'-1'    BFIELD = X'FFFFFFFF'
 	param := line.Params[0]
 	if line.Label == "" {
 		buff := make([]byte, 6)
@@ -65,6 +66,7 @@ func dc(line syntax.Line, traverse int) (ret string) {
 	case "C":
 		ret += "pl.CHAR(" + length + ")" + init
 	case "F":
+		ret += "dc.F(" + param.Values[0].Extra + ")"
 	case "H":
 	case "P":
 	case "X":

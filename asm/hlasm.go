@@ -124,8 +124,15 @@ func BO() bool { // branch Ones
 // 'BXH':        ('86','R1,R3,D2(B2)',       'RR BD DD'),
 // 'BXLE':       ('87','R1,R3,D2(B2)',       'RR BD DD'),
 // 'C':          ('59','R1,D2(X2,B2)',       'RX BD DD'),
-func C(R1 byte, DXB2 pl.Objer) {
-
+func C(R1 byte, D2 interface{}, X2, B2 byte) {
+	switch d2 := D2.(type) {
+	case int:
+		Rui[R1] = uintptr(d2) + Rui[X2] + Rui[B2]
+	case pl.Objer:
+		Rui[R1] = uintptr(unsafe.Pointer(&d2)) // + Rui[X2] + Rui[B2]
+	case pl.Fixed_bin:
+		Rui[R1] = uintptr(d2.I32()) + Rui[X2] + Rui[B2]
+	}
 }
 
 // 'CDS':        ('BB','R1,R3,D2(B2)',       'RR BD DD'),

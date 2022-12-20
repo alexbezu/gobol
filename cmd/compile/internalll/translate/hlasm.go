@@ -13,7 +13,7 @@ type Translator_asm struct {
 }
 
 var funcs = map[string]instruction_f{
-	"A": a,
+	// "A": a,
 	// "AH":
 	// "AL":
 	// "ALR":
@@ -36,6 +36,8 @@ func (t *Translator_asm) Compile_tree(tree *syntax.File_asm) {
 		// f(line)
 		switch line.Instr {
 		// case "A":
+		case "A":
+			t.Src += t.a(line)
 		// case "AH":
 		// case "AL":
 		// case "ALR":
@@ -56,6 +58,8 @@ func (t *Translator_asm) Compile_tree(tree *syntax.File_asm) {
 		// case "BXH":
 		// case "BXLE":
 		// case "C":
+		case "C":
+			t.Src += t.c(line)
 		// case "CDS":
 		// case "CH":
 		// case "CL":
@@ -145,7 +149,8 @@ func (t *Translator_asm) Compile_tree(tree *syntax.File_asm) {
 
 		case "B":
 			t.Src += t.b(line)
-		// case "BR":
+		case "BR":
+			t.Src += t.br(line)
 		// case "NOP":
 		// case "NOPR":
 		// case "BH":
@@ -158,7 +163,8 @@ func (t *Translator_asm) Compile_tree(tree *syntax.File_asm) {
 		// case "BNHR":
 		// case "BNL":
 		// case "BNLR":
-		// case "BNE":
+		case "BNE":
+			t.Src += t.bne(line)
 		// case "BNER":
 		// case "BO":
 		// case "BOR":
@@ -215,8 +221,47 @@ func (t *Translator_asm) label(lbl string) (ret string) {
 	return ret
 }
 
-func a(line syntax.Line) string {
-	return ""
+func r1d2x2b2(instruction string, line syntax.Line) string {
+	var R1, D2, X2, B2 string
+	X2 = "0"
+	B2 = "0"
+	params := line.Params
+	R1 = params[0].ParamName
+	if params[0].ParamName == "number" && len(params[0].Values) > 0 {
+		R1 = params[0].Values[0].Value
+	}
+	D2 = params[1].ParamName
+	if params[1].ParamName == "number" && len(params[1].Values) > 0 {
+		D2 = params[1].Values[0].Value
+	} else if params[1].ParamName == "_Storage" && len(params[1].Values) > 0 {
+		switch params[1].Values[0].Value {
+		case "F":
+			D2 = "dc.F(" + params[1].Values[0].Extra + ")"
+		default:
+			panic("TODO: r1d2x2b2 _Storage")
+		}
+	} else {
+		if len(params[1].Values) == 1 {
+			B2 = params[1].Values[0].Value
+		} else if len(params[1].Values) == 2 {
+			X2 = params[1].Values[0].Value
+			B2 = params[1].Values[1].Value
+		}
+	}
+	return instruction + R1 + ", " + D2 + ", " + X2 + ", " + B2 + ")\n"
+}
+
+func d1lb1d2b2(instruction string, line syntax.Line) string {
+	var D1, L, B1, D2, B2 string
+	B2 = "0"
+	params := line.Params
+	D1 = params[0].ParamName
+
+	return instruction + D1 + ", " + B1 + ", " + D2 + ", " + B2 + ", " + L + ")\n"
+}
+
+func (t *Translator_asm) a(line syntax.Line) string {
+	return t.label(line.Label) + r1d2x2b2("asm.A(", line)
 }
 
 func ap(line syntax.Line) string {
@@ -235,42 +280,30 @@ func (t *Translator_asm) balr(line syntax.Line) string {
 	return t.label(line.Label) + "asm.BALR(" + params[0].ParamName + ", " + params[1].ParamName + ")\n"
 }
 
+func (t *Translator_asm) c(line syntax.Line) string {
+	return t.label(line.Label) + r1d2x2b2("asm.C(", line)
+}
+
 func (t *Translator_asm) ed(line syntax.Line) string {
 	params := line.Params
 	return t.label(line.Label) + "asm.ED(" + params[0].ParamName + ", " + params[1].ParamName + ")\n"
 }
 
 func (t *Translator_asm) l(line syntax.Line) string {
-	var R1, D2, X2, B2 string
-	X2 = "0"
-	B2 = "0"
-	params := line.Params
-	R1 = params[0].ParamName
-	if params[0].ParamName == "number" {
-		R1 = params[0].Values[0].Value
-	}
-	D2 = params[1].ParamName
-	return t.label(line.Label) + "asm.L(" + R1 + ", " + D2 + ", " + X2 + ", " + B2 + ")\n"
+	return t.label(line.Label) + r1d2x2b2("asm.L(", line)
 }
 
 func (t *Translator_asm) la(line syntax.Line) string {
-	var R1, D2, X2, B2 string
-	X2 = "0"
-	B2 = "0"
-	params := line.Params
-	R1 = params[0].ParamName
-	if params[0].ParamName == "number" {
-		R1 = params[0].Values[0].Value
-	}
-	D2 = params[1].ParamName
-	return t.label(line.Label) + "asm.LA(" + R1 + ", " + D2 + ", " + X2 + ", " + B2 + ")\n"
+	return t.label(line.Label) + r1d2x2b2("asm.LA(", line)
 }
 
+//d1lb1d2b2
 func (t *Translator_asm) mvc(line syntax.Line) (ret string) {
 	// MVC(D1 Objer, D2 Objer, length ...byte)
-	params := line.Params
-	ret = t.label(line.Label) + "asm.MVC(" + params[0].ParamName + ", " + params[1].ParamName + ")\n"
-	return ret
+	// params := line.Params
+	// ret = t.label(line.Label) + "asm.MVC(" + params[0].ParamName + ", " + params[1].ParamName + ")\n"
+	return t.label(line.Label) + d1lb1d2b2("asm.MVC(", line)
+	// return ret
 }
 
 func (t *Translator_asm) pack(line syntax.Line) (ret string) {
@@ -286,5 +319,23 @@ func (t *Translator_asm) b(line syntax.Line) (ret string) {
 	// B     READREC | goto     READREC
 	params := line.Params
 	ret = t.label(line.Label) + "goto " + params[0].ParamName + "\n"
+	return ret
+}
+
+func (t *Translator_asm) br(line syntax.Line) (ret string) {
+	params := line.Params
+	if params[0].ParamName == "R14" {
+		ret = "return asm.Rui[15]\n"
+	} else if params[0].ParamName == "number" && params[0].Values[0].Value == "14" {
+		ret = "return asm.Rui[15]\n"
+	} else {
+		ret = t.label(line.Label) + "goto " + params[0].ParamName + "\n"
+	}
+	return ret
+}
+
+func (t *Translator_asm) bne(line syntax.Line) (ret string) {
+	params := line.Params
+	ret = t.label(line.Label) + "if asm.BNE() {\n\t\tgoto " + params[0].ParamName + "\n\t}\n"
 	return ret
 }

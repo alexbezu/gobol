@@ -397,7 +397,7 @@ func (s *scanner_asm) stdString() {
 		s.line, s.col = s.pos()
 		if s.ch == 'X' && s.col == 72 {
 			s.nextch()
-		} else if s.col < 16 {
+		} else if s.col < 15 {
 			s.nextch()
 		} else if s.ch == '\'' {
 			s.nextch()

@@ -200,7 +200,7 @@ func (p *parser_asm) param() (key string, vals []Value) {
 			panic("TODO: params switch 2")
 		}
 	case _Storage: // DC X'0204'
-		v := Value{Tok: p.tok, Value: "1"}
+		v := Value{Tok: p.tok}
 		key = p.lit
 		p.next()
 		if p.tok == _Char_asm {
@@ -247,6 +247,16 @@ func (p *parser_asm) param() (key string, vals []Value) {
 		key = "assign"
 		p.next()
 		switch p.tok {
+		case _Storage:
+			v.Tok = p.tok
+			key = "_Storage"
+			v.Value = p.lit
+			p.next()
+			if p.tok == _Char_asm {
+				v.Extra = p.lit
+			} else {
+				panic("only Char in _Storage is allowed")
+			}
 		case _Storage_len:
 			v.Tok = p.tok
 			p.next()
@@ -254,6 +264,8 @@ func (p *parser_asm) param() (key string, vals []Value) {
 			if err == nil {
 				v.Length = l
 			}
+		default:
+			panic("after _Assign_asm param")
 		}
 		vals = append(vals, v)
 	case _Comma_asm, _Newline_asm:
@@ -301,6 +313,9 @@ func (p *parser_asm) values() (ret []Value) {
 			p.next()
 		case _Comma_asm:
 			p.next()
+		case _Newline_asm:
+			p.next()
+			return ret
 		default:
 			panic("TODO: values")
 		}
