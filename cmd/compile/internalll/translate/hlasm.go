@@ -35,6 +35,8 @@ func (t *Translator_asm) Compile_tree(tree *syntax.File_asm) {
 		// f := funcs[line.Instr]
 		// f(line)
 		switch line.Instr {
+		case "_Comment":
+			t.Src += "// " + line.Label
 		// case "A":
 		case "A":
 			t.Src += t.a(line)

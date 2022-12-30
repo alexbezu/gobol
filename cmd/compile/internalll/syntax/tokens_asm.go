@@ -34,7 +34,8 @@ const (
 	_Star_asm   // *
 	_Plus_asm   // +
 
-	_Equ // EQU
+	_Equ     // EQU
+	_Comment // comment
 	// empty line comment to exclude it from .String
 	tokenCount_asm //
 )

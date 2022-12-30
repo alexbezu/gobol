@@ -28,12 +28,13 @@ func _() {
 	_ = x[_Star_asm-18]
 	_ = x[_Plus_asm-19]
 	_ = x[_Equ-20]
-	_ = x[tokenCount_asm-21]
+	_ = x[_Comment-21]
+	_ = x[tokenCount_asm-22]
 }
 
-const _tokens_asm_name = "_EOF_asm_Newline_asm_ID_asm_Literal_asm_Instruction_Label_Char_asm_Number_asm_Storage_Storage_len_Storage_rf_L_macro_Lparen_asm_Rparen_asm_Comma_asm_Semi_asm_Assign_asm_Star_asm_Plus_asm_EqutokenCount_asm"
+const _tokens_asm_name = "_EOF_asm_Newline_asm_ID_asm_Literal_asm_Instruction_Label_Char_asm_Number_asm_Storage_Storage_len_Storage_rf_L_macro_Lparen_asm_Rparen_asm_Comma_asm_Semi_asm_Assign_asm_Star_asm_Plus_asm_Equ_CommenttokenCount_asm"
 
-var _tokens_asm_index = [...]uint8{0, 8, 20, 27, 39, 51, 57, 66, 77, 85, 97, 108, 116, 127, 138, 148, 157, 168, 177, 186, 190, 204}
+var _tokens_asm_index = [...]uint8{0, 8, 20, 27, 39, 51, 57, 66, 77, 85, 97, 108, 116, 127, 138, 148, 157, 168, 177, 186, 190, 198, 212}
 
 func (i tokens_asm) String() string {
 	i -= 1

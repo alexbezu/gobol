@@ -111,10 +111,14 @@ func (s *scanner_asm) next() {
 
 	//skip * comment
 	if s.col == 1 && s.ch == '*' {
+		s.nextch()
 		for s.ch != '\n' /*|| startCol == s.col*/ {
 			s.nextch()
+			s.lit += string(s.ch)
 			s.line, s.col = s.pos()
 		}
+		s.tok = _Comment
+		return
 	}
 
 	if s.ch == '\n' {

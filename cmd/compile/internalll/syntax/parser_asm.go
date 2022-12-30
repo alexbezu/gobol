@@ -123,6 +123,11 @@ func (p *parser_asm) lines() (l Line) {
 		fallthrough
 	case _Instruction:
 		l.Instr = p.lit
+	case _Comment:
+		l.Instr = p.tok.String()
+		l.Label = p.lit
+		p.next()
+		return l
 	default:
 		panic("TODO: lines switch")
 	}
