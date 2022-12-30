@@ -35,6 +35,15 @@ func equ(line syntax.Line, traverse int) string {
 	return "const " + line.Label + " = " + params[0].Values[0].Value + "\n"
 }
 
+func X_generator(extra string) string {
+	init := ""
+	for i := 0; i < len(extra); i += 2 {
+		digit := extra[i : i+2]
+		init += "0x" + digit + ", "
+	}
+	return "ds.X(" + init[0:len(init)-2] + ")"
+}
+
 func dc(line syntax.Line, traverse int) (ret string) {
 	//EMPTY    DC    CL1' '    | var EMPTY = pl.CHAR(1).INIT(" ")
 	//EDWD     DC    X'402020' | var EDWD = ds.X(0x40, 0x20, 0x20)
@@ -70,12 +79,12 @@ func dc(line syntax.Line, traverse int) (ret string) {
 	case "H":
 	case "P":
 	case "X":
-		init := ""
-		for i := 0; i < len(param.Values[0].Extra); i += 2 {
-			digit := param.Values[0].Extra[i : i+2]
-			init += "0x" + digit + ", "
-		}
-		ret += "ds.X(" + init[0:len(init)-2] + ")"
+		// init := ""
+		// for i := 0; i < len(param.Values[0].Extra); i += 2 {
+		// 	digit := param.Values[0].Extra[i : i+2]
+		// 	init += "0x" + digit + ", "
+		// }
+		ret += X_generator(param.Values[0].Extra) //"ds.X(" + init[0:len(init)-2] + ")"
 	default:
 		ret = "syntax error dc " + "\n"
 	}

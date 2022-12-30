@@ -237,7 +237,7 @@ func (p *parser_asm) param() (key string, vals []Value) {
 		vals = append(vals, p.values()...)
 		p.next()
 	case _Number_asm:
-		key = "number"
+		key = p.tok.String()
 		vals = append(vals, Value{Tok: p.tok, Value: p.lit})
 	case _Star_asm:
 		key = "star"
@@ -268,6 +268,24 @@ func (p *parser_asm) param() (key string, vals []Value) {
 			panic("after _Assign_asm param")
 		}
 		vals = append(vals, v)
+	case _L_macro:
+		key = p.tok.String()
+		v := Value{Tok: p.tok}
+		p.next()
+		if p.tok == _ID_asm {
+			v.Value = p.lit
+			vals = append(vals, v)
+		} else {
+			panic("only ID is allowed in _L_macro")
+		}
+		p.next()
+		if p.tok == _Lparen_asm {
+			vals = append(vals, p.values()...)
+		} else if p.tok == _Comma_asm || p.tok == _Newline_asm {
+			return key, vals
+		} else {
+			panic("only () is allowed in _L_macro after ID")
+		}
 	case _Comma_asm, _Newline_asm:
 		return key, vals
 	default:

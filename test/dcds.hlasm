@@ -1,6 +1,6 @@
          CSECT
 INCLOS   MVC   ATOTAL,EDWD
-         MVC   TARGET+10(20,R1),SOURCE+3
+         MVC   TARGET+10(20,R1),SOURCE+3(R5)
 PTITLE   DS    0CL121 
          DC    CL27' P A Y R O L L  R E P O R T'
          DC    CL20 '  -  B I M  C O R P.'

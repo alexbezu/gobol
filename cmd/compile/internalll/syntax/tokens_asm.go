@@ -40,6 +40,10 @@ const (
 )
 
 const (
+	ID_asm      = _ID_asm
+	L_macro     = _L_macro
+	Number_asm  = _Number_asm
+	Plus_asm    = _Plus_asm
 	Storage     = _Storage
 	Storage_len = _Storage_len
 	Storage_rf  = _Storage_rf
