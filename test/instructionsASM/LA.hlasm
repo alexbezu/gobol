@@ -1,0 +1,48 @@
+LA       SUBENTRY 
+
+         L R4,=X'12121212'  cmt
+         L R5,=X'00000008'  
+         L R6,=X'00000004' 
+
+         LA R4,AFIELD  
+*         SNAP   PDATA=(REGS) 
+         ST R4,AFIELD
+         C R4,AFIELD
+         BNE FAIL
+         LA R4,L'AFIELD(R0,R4)  R4 == BFIELD
+*  In the example above, the length attribute (L') is used as
+*  a displacement
+* TODO:         LA R7,AFIELD+L'AFIELD
+         LA R7,BFIELD
+         CR R4,R7
+         BNE FAIL
+         LA R4,AFIELD+4(R6)  R4 == CFIELD
+         LA R7,CFIELD
+         CR R4,R7
+         BNE FAIL
+         LA R4,20(R5,R6)   R4 = X'00000020' 4 + 8 + 20 = 32 = X'20'
+         C R4,=X'00000020'                                                    
+         BNE FAIL
+*  Using R0 as an index indicates that no index register is desired:
+         LA R4,3(R0,R6)    R4 = X'00000007' 4 + 3 = 7
+         C R4,=X'00000007'                                                    
+         BNE FAIL
+
+         LA 15,0
+         BR 14
+FAIL     LA 15,8
+         BR 14
+
+         SUBEXIT
+
+AFIELD   DC F'4'          
+BFIELD   DC F'4'           
+CFIELD   DC F'4'           
+
+R0       EQU   0
+R4       EQU   4
+R5       EQU   5
+R6       EQU   6
+R7       EQU   7
+
+         END

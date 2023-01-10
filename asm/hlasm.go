@@ -2,6 +2,7 @@ package asm
 
 import (
 	"fmt"
+	"reflect"
 	"unsafe"
 
 	"github.com/alexbezu/gobol/pl"
@@ -12,6 +13,7 @@ type Register interface {
 }
 
 var PSW uint64
+var condition_code byte
 
 const PSW_CC1 = uint64(1 << 18)
 const PSW_CC2 = uint64(1 << 19)
@@ -83,15 +85,17 @@ func BALR(R1 byte, R2 byte) bool {
 }
 
 func BE() bool {
-	return (PSW&PSW_CC1 != PSW_CC1) && (PSW&PSW_CC2 != PSW_CC2)
+	// return BC(0b1000)
+	return condition_code == 0
 }
 
 func BH() bool {
-	return false
+	return BC(2)
 }
 
 func BNE() bool {
-	return (PSW&PSW_CC1 == PSW_CC1) || (PSW&PSW_CC2 == PSW_CC2)
+	return condition_code != 0
+	// return BC(0b0111)
 }
 
 // 'BAS':        ('4D','R1,D2(X2,B2)',       'RX BD DD'),
@@ -99,10 +103,7 @@ func BNE() bool {
 // 'BASSM':      ('0C','R1,R2',              'RR'),
 // 'BC':         ('47','M1,D2(X2,B2)',       'MX BD DD'),
 func BC(M1 byte) bool {
-	// Branch to address D2(X2,B2) depending on current condition code and 4-bit mask M1. Each bit of mask corresponds to possible value of CC.
-	// The branch is taken if the bit of the mask corresponding to the current value of condition code is set.
-	// Assembler provides additional mnemonics for various common mask types. CC: no change.
-	return false
+	return (condition_code & M1) > 0
 }
 
 // 'BCR':        ('07','M1,R2',              'MR'),
@@ -123,15 +124,30 @@ func BO() bool { // branch Ones
 // 'BSM':        ('0B','R1,R2',              'RR'),
 // 'BXH':        ('86','R1,R3,D2(B2)',       'RR BD DD'),
 // 'BXLE':       ('87','R1,R3,D2(B2)',       'RR BD DD'),
-// 'C':          ('59','R1,D2(X2,B2)',       'RX BD DD'),
+// The Compare instruction is used to compare a 32-bit signed in a R1, Operand 1, with a 32-bit signed in D2X2B2, Operand 2.
 func C(R1 byte, D2 interface{}, X2, B2 byte) {
+	var D2X2B2 uintptr
+	var b *[4]byte
 	switch d2 := D2.(type) {
 	case int:
-		Rui[R1] = uintptr(d2) + Rui[X2] + Rui[B2]
+		D2X2B2 = uintptr(d2) + Rui[X2] + Rui[B2]
 	case pl.Objer:
-		Rui[R1] = uintptr(unsafe.Pointer(&d2)) // + Rui[X2] + Rui[B2]
-	case pl.Fixed_bin:
-		Rui[R1] = uintptr(d2.I32()) + Rui[X2] + Rui[B2]
+		hdr := (*reflect.SliceHeader)(unsafe.Pointer(d2.GetBuff()))
+		b = (*[4]byte)(unsafe.Pointer(hdr.Data + uintptr(d2.GetOffset()) + Rui[X2] + Rui[B2]))
+		// b := *d2.GetBuff()
+		// o := d2.GetOffset() + uint32(Rui[X2]+Rui[B2])
+		// _ = b[3+o]
+		// D2X2B2 = uintptr(b[3+o]) | uintptr(b[2+o])<<8 | uintptr(b[1+o])<<16 | uintptr(b[0+o])<<24
+		_ = b[3]
+		D2X2B2 = uintptr(b[3]) | uintptr(b[2])<<8 | uintptr(b[1])<<16 | uintptr(b[0])<<24
+	}
+	cc := int32(Rui[R1]) - int32(D2X2B2)
+	if cc == 0 {
+		condition_code = 0
+	} else if cc < 0 {
+		condition_code = 1
+	} else {
+		condition_code = 2
 	}
 }
 
@@ -183,6 +199,17 @@ func CLI(D1B1 pl.Objer, I2 byte) bool {
 // 'CLR':        ('15','R1,R2',              'RR'),
 // 'CP':         ('F9','D1(L1,B1),D2(L2,B2)','L1L2 BD DD BD DD'),
 // 'CR':         ('19','R1,R2',              'RR'),
+func CR(R1, R2 byte) {
+	cc := int32(Rui[R1]) - int32(Rui[R2])
+	if cc == 0 {
+		condition_code = 0
+	} else if cc < 0 {
+		condition_code = 1
+	} else {
+		condition_code = 2
+	}
+}
+
 // 'CS':         ('BA','R1,R3,D2(B2)',       'RR BD DD'),
 // 'CVB':        ('4F','R1,D2(X2,B2)',       'RX BD DD'),
 // 'CVD':        ('4E','R1,D2(X2,B2)',       'RX BD DD'),
@@ -198,39 +225,49 @@ func ED(D1 *pl.Char, D2 *pl.Fixed_dec, length ...byte) {
 // 'EX':         ('44','R1,D2(X2,B2)',       'RX BD DD'),
 // 'IC':         ('43','R1,D2(X2,B2)',       'RX BD DD'),
 // 'ICM':        ('BF','R1,M3,D2(B2)',       'RM BD DD'),
-// 'L':          ('58','R1,D2(X2,B2)',       'RX BD DD'),
+// Load value (32 bits) by address D2X2B2 to R1
 func L(R1 byte, D2 interface{}, X2, B2 byte) {
+	var b *[4]byte
 	switch d2 := D2.(type) {
 	case int:
-		Rui[R1] = uintptr(d2) + Rui[X2] + Rui[B2]
+		panic("TODO: L(R1 byte, D2 interface{}, X2, B2 byte) case int:")
+	case uint32:
+		if Rui[B2] > 0xFFFF {
+			b = (*[4]byte)(unsafe.Pointer(Rui[B2] + uintptr(d2) + Rui[X2]))
+		} else if Rui[X2] > 0xFFFF {
+			//b = *(*[]byte)(unsafe.Pointer(Rui[X2] + uintptr(d2) + Rui[B2]))
+			b = (*[4]byte)(unsafe.Add(unsafe.Pointer(Rui[X2]), uintptr(d2)+Rui[B2]))
+		} else {
+			panic("L(no address)")
+		}
 	case pl.Objer:
-		Rui[R1] = uintptr(unsafe.Pointer(&d2)) // + Rui[X2] + Rui[B2]
-	case pl.Fixed_bin:
-		Rui[R1] = uintptr(d2.I32()) + Rui[X2] + Rui[B2]
+		// b := *d2.GetBuff()
+		// o := d2.GetOffset() + uint32(Rui[X2]+Rui[B2])
+		// _ = b[3+o]
+		hdr := (*reflect.SliceHeader)(unsafe.Pointer(d2.GetBuff()))
+		b = (*[4]byte)(unsafe.Pointer(hdr.Data + uintptr(d2.GetOffset()) + Rui[X2] + Rui[B2]))
+
+	default:
+		panic("L(R1 byte, D2 interface{}, X2, B2 byte)")
 	}
+	_ = b[3]
+	Rui[R1] = uintptr(b[3]) | uintptr(b[2])<<8 | uintptr(b[1])<<16 | uintptr(b[0])<<24
 }
 
-// 'LA':         ('41','R1,D2(X2,B2)',       'RX BD DD'),
-// func LA(R1 byte, DXB2 pl.Objer) {
-// 	switch r := R[R1].(type) {
-// 	case *pl.Char:
-// 		r.BASED(DXB2)
-// 	case *pl.CL_0:
-// 		r.BASED(DXB2)
-// 	case *pl.Int:
-// 	default:
-// 		panic("TODO: asm LA")
-// 	}
-// 	R[R1] = R[R1].P(DXB2.GetOffset())
-// }
+// Load real Address of the buffer in to the R1
 func LA(R1 byte, D2 interface{}, X2, B2 byte) {
-	// regs[_R1] = calc_address(_B2, _D2, _X2)
 	switch d2 := D2.(type) {
 	case int:
+		// X2 or B2 allready have an address of the Buff in uintptr
+		Rui[R1] = uintptr(d2) + Rui[X2] + Rui[B2]
+	case uint32:
 		Rui[R1] = uintptr(d2) + Rui[X2] + Rui[B2]
 	case pl.Objer:
-		displacement := d2.GetOffset()
-		Rui[R1] = uintptr(displacement) + Rui[X2] + Rui[B2]
+		hdr := (*reflect.SliceHeader)(unsafe.Pointer(d2.GetBuff()))
+		Rui[R1] = hdr.Data + uintptr(d2.GetOffset()) + Rui[X2] + Rui[B2]
+		// Rui[R1] = uintptr(unsafe.Pointer(d2.GetBuff())) + uintptr(d2.GetOffset()) + Rui[X2] + Rui[B2]
+	default:
+		panic("LA(R1 byte, D2 interface{}, X2, B2 byte)")
 	}
 }
 
@@ -349,9 +386,29 @@ func SR(R1 byte, R2 byte) {
 // 'SRDL':       ('8C','R1,D2(X2,B2)',       'R0 BD DD'),
 // 'SRL':        ('88','R1,D2(X2,B2)',       'R0 BD DD'),
 // 'SRP':        ('F0','D1(L1,B1),D2(B2),I3','LI BD DD BD DD'),
-// 'ST':         ('50','R1,D2(X2,B2)',       'RX BD DD'),
-func ST(R1 byte, DXB2 pl.Objer) {
-	DXB2.Set(R[R1])
+//ST is used to copy the 4 (or 8) bytes from register 1 into the 4 bytes memory location specified by operand 2
+func ST(R1 byte, D2 interface{}, X2, B2 byte) {
+	var b *[4]byte
+	switch d2 := D2.(type) {
+	case int:
+		if Rui[B2] > 0xFFFF {
+			b = (*[4]byte)(unsafe.Pointer(Rui[B2] + uintptr(d2) + Rui[X2]))
+		} else if Rui[X2] > 0xFFFF {
+			b = (*[4]byte)(unsafe.Add(unsafe.Pointer(Rui[X2]), uintptr(d2)+Rui[B2]))
+		} else {
+			panic("L(no address)")
+		}
+	case pl.Objer:
+		hdr := (*reflect.SliceHeader)(unsafe.Pointer(d2.GetBuff()))
+		b = (*[4]byte)(unsafe.Pointer(hdr.Data + uintptr(d2.GetOffset()) + Rui[X2] + Rui[B2]))
+	default:
+		panic("ST(R1 byte, D2 interface{}, X2, B2 byte)")
+	}
+	_ = b[3]
+	b[0] = byte(Rui[R1] >> 24)
+	b[1] = byte(Rui[R1] >> 16)
+	b[2] = byte(Rui[R1] >> 8)
+	b[3] = byte(Rui[R1])
 }
 
 // 'STC':        ('42','R1,D2(X2,B2)',       'RX BD DD'),

@@ -24,9 +24,9 @@ func X(init ...byte) (ret *pl.Char) {
 	ret = pl.CHAR(size)
 	if dsect != nil {
 		ret.BASED(dsect)
+		ret.SetOffset(location_counter)
+		location_counter += size
 	}
-	ret.SetOffset(location_counter)
-	location_counter += size
 	ret.CopyBuff(init)
 	return ret
 }

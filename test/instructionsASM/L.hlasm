@@ -1,0 +1,51 @@
+L        SUBENTRY
+
+         L R4,=X'12121212' 
+         L R5,=X'00000008'  
+         L R6,=X'00000004' 
+
+         L R4,AFIELD       R4 == X'00000004'
+         C R4,=X'00000004'                                                    
+         BNE FAIL
+
+         L 4,AFIELD(6)   R4 == X'FFFFFFFF'
+         C R4,=X'FFFFFFFF'                                                    
+         BNE FAIL
+
+         L 4,AFIELD(R5)   R4 == X'00000000'
+         C R4,=X'00000000'                                                    
+         BNE FAIL
+
+         L 6,AFIELD(6)   R6 = X'FFFFFFFF'
+         C R6,=X'FFFFFFFF'                                                    
+         BNE FAIL
+* CONSIDER THE NEXT TWO CONSECUTIVELY EXECUTED LOADS u
+         L 5,AFIELD       R5 = X'00000004'
+         C R5,=X'00000004'                                                    
+         BNE FAIL
+
+         L 6,AFIELD(R5)   R6 = X'FFFFFFFF'
+         C R6,=X'FFFFFFFF'                                                    
+         BNE FAIL
+
+         LA R5,AFIELD
+         L R6,L'AFIELD(R5)  
+         C R6,=X'FFFFFFFF'                                                    
+         BNE FAIL
+
+         LA 15,0
+         BR 14
+FAIL     LA 15,8
+         BR 14
+
+         SUBEXIT
+
+AFIELD   DC F'4'     AFIELD = X'00000004'
+BFIELD   DC F'-1'    BFIELD = X'FFFFFFFF'
+CFIELD   DC F'0'     CFIELD = X'00000000'
+
+R4       EQU   4
+R5       EQU   5
+R6       EQU   6
+
+	 END

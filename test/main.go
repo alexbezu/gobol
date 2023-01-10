@@ -1,10 +1,17 @@
 //go:build ignore
-// +build ignore
 
 package main
 
-import test222 "gobol/test/pgm"
+import (
+	"os"
+)
+
+var test func() uintptr
 
 func main() {
-	test222.REPORT()
+	if test != nil {
+		ret := int(test())
+		os.Exit(ret)
+	}
+	os.Exit(1)
 }

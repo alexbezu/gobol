@@ -71,7 +71,8 @@ func (t *Translator_asm) Compile_tree(tree *syntax.File_asm) {
 		// case "CLM":
 		// case "CLR":
 		// case "CP":
-		// case "CR":
+		case "CR":
+			t.Src += t.cr(line)
 		// case "CS":
 		// case "CVB":
 		// case "CVD":
@@ -133,7 +134,8 @@ func (t *Translator_asm) Compile_tree(tree *syntax.File_asm) {
 		// case "SRDL":
 		// case "SRL":
 		// case "SRP":
-		// case "ST":
+		case "ST":
+			t.Src += t.st(line)
 		// case "STC":
 		// case "STCM":
 		// case "STH":
@@ -320,6 +322,18 @@ func (t *Translator_asm) c(line syntax.Line) string {
 	return t.label(line.Label) + r1d2x2b2("asm.C(", line)
 }
 
+func (t *Translator_asm) cr(line syntax.Line) string {
+	R1 := line.Params[0].ParamName
+	R2 := line.Params[1].ParamName
+	if line.Params[0].ParamName == "_Number_asm" {
+		R1 = line.Params[0].Values[0].Value
+	}
+	if line.Params[1].ParamName == "_Number_asm" {
+		R2 = line.Params[1].Values[0].Value
+	}
+	return t.label(line.Label) + "asm.CR(" + R1 + ", " + R2 + ")\n"
+}
+
 func (t *Translator_asm) ed(line syntax.Line) string {
 	params := line.Params
 	return t.label(line.Label) + "asm.ED(" + params[0].ParamName + ", " + params[1].ParamName + ")\n"
@@ -353,6 +367,11 @@ func (t *Translator_asm) pack(line syntax.Line) (ret string) {
 	params := line.Params
 	ret = t.label(line.Label) + "asm.PACK(" + params[0].ParamName + ", " + params[1].ParamName + ")\n"
 	return ret
+}
+
+func (t *Translator_asm) st(line syntax.Line) (ret string) {
+	//L1L2_BD_DD_BD_DD
+	return t.label(line.Label) + r1d2x2b2("asm.ST(", line)
 }
 
 // branches

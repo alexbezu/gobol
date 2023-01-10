@@ -121,8 +121,13 @@ func (c *Fixed_bin) Set(val interface{}) error {
 }
 
 func (c *Fixed_bin) P(val interface{}) Objer {
-	switch val.(type) {
-
+	ret := &Fixed_bin{Obj: c.Obj}
+	ret.int32 = c.int32
+	switch val := val.(type) {
+	case int:
+		ret.offset += uint32(val)
+	case uint32:
+		ret.offset += val
 	}
-	return c
+	return ret
 }
