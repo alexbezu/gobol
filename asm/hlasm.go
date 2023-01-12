@@ -287,7 +287,7 @@ func LH(R1 byte, DXB2 *pl.Fixed_bin) {
 // 'MP':         ('FC','D1(L1,B1),D2(L2,B2)','L1L2 BD DD BD DD'),
 // 'MR':         ('1C','R1,R2',              'RR'),
 // 'MVC':        ('D2','D1(L,B1),D2(B2)',    'LL BD DD BD DD'),
-func MVC(D1 pl.Objer, D2 pl.Objer, length ...byte) {
+func MVC1(D1 pl.Objer, D2 pl.Objer, length ...byte) {
 	// MVC  WRIRANGE,=AL2(WRIEQ)    mvc(WRIRANGE,p(...))
 	// MVC  0(L'EMPID,R1),EMPID     MVC(asm.R[R1].P(0), EMPID, len(EMPID))
 	// MVC  TARGET(40),SOURCE       MVC(TARGET, SOURCE, 40)
@@ -309,24 +309,37 @@ func MVC(D1 pl.Objer, D2 pl.Objer, length ...byte) {
 	var _ = D1.String()
 }
 
-func MVC1(D1 pl.Objer, L byte, B1 byte, D2 pl.Objer, B2 byte) {
-	dest := calc_address(B1, D1)
-	source := calc_address(B2, D2)
-	for i := uint32(0); i < uint32(L); i++ {
-		asmbuf[dest+i] = asmbuf[source+i]
+func MVC(D1 interface{}, B1 byte, D2 interface{}, B2 byte, length ...byte) {
+	var LL uintptr
+	switch d := D1.(type) {
+	case pl.Objer:
+		LL = uintptr(d.GetSize())
 	}
-	var _ = D1.String()
+	if len(length) > 0 {
+		LL = uintptr(length[0])
+	}
+	dest := calc_address(D1, B1, 0)
+	source := calc_address(D2, B2, 0)
+	for i := uintptr(0); i < LL; i++ {
+		*(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(dest)) + i)) = *(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(source)) + i))
+	}
 }
 
-func calc_address(B byte, D pl.Objer, X ...byte) uint32 {
-	addr := D.GetOffset()
-
-	// if X != 0:
-	//     addr = addr + cast_to_type(regs[X],int)
-
-	// addr += cast_to_type(regs[B], int)
-
-	return addr
+func calc_address(D interface{}, X, B byte) (ret *byte) {
+	switch d := D.(type) {
+	case int:
+		addr := uintptr(d) + Rui[X] + Rui[B]
+		ret = (*byte)(unsafe.Pointer(addr + Rui[X] + Rui[B]))
+	case uint32:
+		addr := uintptr(d) + Rui[X] + Rui[B]
+		ret = (*byte)(unsafe.Pointer(addr + Rui[X] + Rui[B]))
+	case pl.Objer:
+		hdr := (*reflect.SliceHeader)(unsafe.Pointer(d.GetBuff()))
+		ret = (*byte)(unsafe.Pointer(hdr.Data + uintptr(d.GetOffset()) + Rui[X] + Rui[B]))
+	default:
+		panic("calc_address(D interface{}, X, B byte)")
+	}
+	return ret
 }
 
 // 'MVCIN':      ('E8','D1(L,B1),D2(B2)',    'LL BD DD BD DD'),

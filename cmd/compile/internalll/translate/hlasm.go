@@ -225,6 +225,103 @@ func (t *Translator_asm) label(lbl string) (ret string) {
 	return ret
 }
 
+func r(param syntax.Param) (r string) {
+	switch len(param.Values) {
+	case 0:
+		r = param.ParamName
+	case 1:
+		switch param.ParamName {
+		case "_Number_asm":
+			r = param.Values[0].Value
+		default:
+			panic("TODO: r1d2x2b2 default")
+		}
+	case 2:
+		panic("TODO: r1d2x2b2 params[0].Values case 2")
+	}
+	return r
+}
+
+// TODO: combine dc() in mocroses
+func storage(v syntax.Value) (d string) {
+	switch v.Value {
+	case "F":
+		d = "dc.F(" + v.Extra + ")"
+	case "X":
+		d = macros.X_generator(v.Extra)
+	case "C":
+		init := ""
+		if v.Extra != "" {
+			init = ".INIT(\"" + v.Extra + "\")"
+		}
+		d = "pl.CHAR(" + ")" + init
+	default:
+		panic("TODO: r1d2x2b2 case _Storage")
+	}
+	return d
+}
+
+func dxb(param syntax.Param) (D, X, B string) {
+	D, X, B = "0", "0", "0"
+	switch param.ParamName {
+	case "_Number_asm":
+		D = param.Values[0].Value
+	case "_L_macro":
+		D = param.Values[0].Value + ".GetSize()"
+	case "_Storage":
+		D = storage(param.Values[0])
+	default:
+		D = param.ParamName
+	}
+
+	Xset := false
+	for _, v := range param.Values {
+		switch v.Tok {
+		case syntax.Number_asm, syntax.ID_asm:
+			if Xset {
+				B = v.Value
+			} else {
+				X = v.Value
+				Xset = true
+			}
+		case syntax.Plus_asm:
+			D += ".P(" + v.Value + ")"
+		case syntax.Storage, syntax.L_macro:
+		default:
+			panic("dlb range param.Values default")
+		}
+	}
+	return D, X, B
+}
+
+func db(param syntax.Param) (D, B string) {
+	D, B = "0", "0"
+	switch param.ParamName {
+	case "_Number_asm":
+		D = param.Values[0].Value
+	case "_L_macro":
+		D = param.Values[0].Value + ".GetSize()"
+	case "_Storage":
+		D = storage(param.Values[0])
+	default:
+		D = param.ParamName
+	}
+
+	for _, v := range param.Values {
+		switch v.Tok {
+		case syntax.Number_asm, syntax.ID_asm:
+			B = v.Value
+		case syntax.Plus_asm:
+			D += ".P(" + v.Value + ")"
+		case syntax.Storage, syntax.L_macro:
+		default:
+			panic("dlb range param.Values default")
+		}
+	}
+
+	return D, B
+}
+
 func r1d2x2b2(instruction string, line syntax.Line) string {
 	var R1, D2, X2, B2 string
 	X2 = "0"
@@ -233,69 +330,27 @@ func r1d2x2b2(instruction string, line syntax.Line) string {
 	if len(params) != 2 {
 		panic("parser error, more than two params in r1d2x2b2")
 	}
-	switch len(params[0].Values) {
-	case 0:
-		R1 = params[0].ParamName
-	case 1:
-		switch params[0].ParamName {
-		case "_Number_asm":
-			R1 = params[0].Values[0].Value
-		default:
-			panic("TODO: r1d2x2b2 default")
-		}
-	case 2:
-		panic("TODO: r1d2x2b2 params[0].Values case 2")
-	}
 
-	if len(params[1].Values) == 0 {
-		D2 = params[1].ParamName
-	} else {
-		switch params[1].ParamName {
-		case "_Number_asm":
-			D2 = params[1].Values[0].Value
-		case "_Storage":
-			switch params[1].Values[0].Value {
-			case "F":
-				D2 = "dc.F(" + params[1].Values[0].Extra + ")"
-			case "X":
-				D2 = macros.X_generator(params[1].Values[0].Extra)
-			default:
-				panic("TODO: r1d2x2b2 case _Storage")
-			}
-		case "_L_macro":
-			D2 = params[1].Values[0].Value + ".GetSize()"
-		default:
-			D2 = params[1].ParamName
-		}
+	R1 = r(line.Params[0])
+	D2, X2, B2 = dxb(line.Params[1])
 
-		x2set := false
-		for _, v := range params[1].Values {
-			switch v.Tok {
-			case syntax.Number_asm, syntax.ID_asm:
-				if x2set {
-					B2 = v.Value
-				} else {
-					X2 = v.Value
-					x2set = true
-				}
-			case syntax.Plus_asm:
-				D2 += ".P(" + v.Value + ")"
-			case syntax.Storage, syntax.L_macro:
-			default:
-				panic("r1d2x2b2 range params[1].Values default")
-			}
-		}
-	}
 	return instruction + R1 + ", " + D2 + ", " + X2 + ", " + B2 + ")\n"
 }
 
-func d1lb1d2b2(instruction string, line syntax.Line) string {
+func d1lb1d2b2(instruction string, line syntax.Line) (ret string) {
 	var D1, L, B1, D2, B2 string
-	B2 = "0"
-	params := line.Params
-	D1 = params[0].ParamName
+	B1, B2 = "0", "0"
+	if len(line.Params) != 2 {
+		panic("parser error, more than two params in d1lb1d2b2")
+	}
+	D1, L, B1 = dxb(line.Params[0])
+	D2, B2 = db(line.Params[1])
 
-	return instruction + D1 + ", " + B1 + ", " + D2 + ", " + B2 + ", " + L + ")\n"
+	ret = instruction + D1 + ", " + B1 + ", " + D2 + ", " + B2
+	if L != "0" {
+		ret += ", " + L
+	}
+	return ret + ")\n"
 }
 
 func (t *Translator_asm) a(line syntax.Line) string {
@@ -323,14 +378,8 @@ func (t *Translator_asm) c(line syntax.Line) string {
 }
 
 func (t *Translator_asm) cr(line syntax.Line) string {
-	R1 := line.Params[0].ParamName
-	R2 := line.Params[1].ParamName
-	if line.Params[0].ParamName == "_Number_asm" {
-		R1 = line.Params[0].Values[0].Value
-	}
-	if line.Params[1].ParamName == "_Number_asm" {
-		R2 = line.Params[1].Values[0].Value
-	}
+	R1 := r(line.Params[0])
+	R2 := r(line.Params[1])
 	return t.label(line.Label) + "asm.CR(" + R1 + ", " + R2 + ")\n"
 }
 
