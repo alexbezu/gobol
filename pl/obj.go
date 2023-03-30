@@ -24,7 +24,8 @@ type Obj struct {
 	subs   []Objer // pubsubtree pattern
 	size   uint32
 	buff   *[]byte // for EBCDIC and BigEndian
-	offset uint32  // for numed and Array
+	pbuff  **[]byte
+	offset uint32 // for numed and Array
 	// sss    interface{} // for the SUBSTR function
 }
 
@@ -45,6 +46,9 @@ func (c *Obj) buf2native() {
 }
 
 func (c *Obj) GetBuff() *[]byte {
+	if c.pbuff != nil {
+		return *c.pbuff
+	}
 	return c.buff
 }
 

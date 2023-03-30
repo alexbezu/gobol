@@ -1,0 +1,90 @@
+A        CSECT
+A        AMODE 31
+A        RMODE ANY
+***********************************************************************
+* http://csc.columbusstate.edu/woolbright/Instructions/ADD.pdf        *
+***********************************************************************
+         SAVE  (14,12)           90ECD00C STM   14,12,12+4*(14-14)(13)
+         BALR  12,0              05C0 PREPARE A BASE REGISTER
+         USING *,12              ESTABLISH BASE REGISTER
+* LISTUSE A        ESD=0001 LOC=00000006 LEN=01000 REG=C OFF=00000 LAB=
+         ST    R13,SAVREG13      50D0C1F2
+*
+         WTO   '* A (Add) is starting, example of Add instr......'
+*
+         XR     R4,R4
+         A      R4,=F'20' R4 = X'00000012' = +18
+         A      R5,=F'20' R5 = X'0000003C' = +60
+         A      R6,=F'20' R6 = X'00000018' = +24
+         A      R6,=F'-5' R6 = X'FFFFFFFF' = -1
+         A      R6,CAT R6 = X'00000000' = 0
+         A      R6,DOG R6 = X'00000008' = +8
+         A      R6,DOG(R6) R6 = X'00000000' INDEXING IS ALLOWED
+         LA     R4,SAVEAREA
+*         L      R4,=X'F5F1F2F3'
+         ST      R4,WTOR4
+         WTO    MF=(E,WTOMSG)
+*         
+*
+*---------------------------------------------------------------------*
+EOJAOK   EQU   *
+         WTO   '* A is complete, example of LINK macro......'
+         L     R13,SAVREG13
+         RETURN (14,12),RC=0
+*
+***********************************************************************
+* ABENDING WITH RETURN-CODE OF 8
+* RETURN to the CALLING PROGRAM OR OPERATING SYSTEM
+*
+ABEND08  EQU   *
+         WTO   '* A is abending...RC=0008'
+         L     R13,SAVREG13
+         RETURN (14,12),RC=8
+*
+***********************************************************************
+* Define Constants and EQUates
+*
+*
+* R4 = X'FFFFFFFE' -2 IN 2'S COMPLEMENT
+* R5 = X'00000028' +40 IN 2'S COMPLEMENT
+* R6 = X'00000004' +4 IN 2'S COMPLEMENT
+
+DOG      DC F'4'
+CAT      DC F'-4'
+
+
+         DS    0F            + Force alignment
+*
+SAVEAREA EQU   *
+         DC    0F,F'0'
+         DS    0F
+SAVREG13 DS    0F
+         DS    15F          * Used by SAVE/RETURN functions
+*
+* WTOMSG   DC    AL2(WTOEND-*,0)
+WTOR4    DC    CL4'0000'
+D45      DC    CL45' '
+WTOEND   EQU   *
+
+
+*
+* Register EQUates
+*
+R0       EQU   0
+R1       EQU   1
+R2       EQU   2
+R3       EQU   3
+R4       EQU   4
+R5       EQU   5
+R6       EQU   6
+R7       EQU   7
+R8       EQU   8
+R9       EQU   9
+R10      EQU   10
+R11      EQU   11
+R12      EQU   12
+R13      EQU   13
+R14      EQU   14
+R15      EQU   15
+*
+         END

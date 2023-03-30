@@ -95,11 +95,12 @@ func (s *TN3270screen) compile_tree(tree *syntax.File_asm) {
 	// 		 s.MFLDin.I.lterm.v = s.lterm;
 }
 
-// ['DEV', '',[('FEAT', ['IGNORE']),
-//             ('PFK', ['LABEL2', 'PRTRANS1 F   ', 'PRTRANS1 2   ', '/FOR PRTRAN2.', 'PRTRANS1 21  ', 'PRTRANS1 24  ', None]),
-//             ('DSCA',[144]),
-//             ('SYSMSG', ['LABEL']),
-//             ('TYPE', ['3270-A03'])]]
+// ['DEV', ”,[('FEAT', ['IGNORE']),
+//
+//	('PFK', ['LABEL2', 'PRTRANS1 F   ', 'PRTRANS1 2   ', '/FOR PRTRAN2.', 'PRTRANS1 21  ', 'PRTRANS1 24  ', None]),
+//	('DSCA',[144]),
+//	('SYSMSG', ['LABEL']),
+//	('TYPE', ['3270-A03'])]]
 func (s *TN3270screen) dev(line syntax.Line) {
 	// for k, values := range line.Params {
 	for _, param := range line.Params {
@@ -202,6 +203,7 @@ func (s *TN3270screen) dfld(line syntax.Line, line_inc uint8) {
 // to
 // is.MFLDin.root = {POS(1,2):  pl.CHAR(13).INIT('PRTRAN3 E    ')}
 func (s *TN3270screen) mfld(line syntax.Line, line_inc uint8) {
+	var err error
 	var ATTR = false
 	var STR string
 	var label string
@@ -294,8 +296,8 @@ func (s *TN3270screen) mfld(line syntax.Line, line_inc uint8) {
 	}
 }
 
-//['MSG', 'PROIFM', [('TYPE', ['INPUT']), ('SOR', ['PROIFD']), ('NXT', ['PRTEST1'])]]
-//to s.MSGTYPE ='INPUT'
+// ['MSG', 'PROIFM', [('TYPE', ['INPUT']), ('SOR', ['PROIFD']), ('NXT', ['PRTEST1'])]]
+// to s.MSGTYPE ='INPUT'
 func (s *TN3270screen) msg(line syntax.Line) {
 	for _, param := range line.Params {
 		switch param.ParamName {

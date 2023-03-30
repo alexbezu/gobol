@@ -9,14 +9,19 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
+            // "program": ".",
             "program": "${file}",
             "buildFlags": "-tags immudb" ,
             "env": {"TN3270DIR": "/home/oleksii/plexer/transactions/",
                     "DBHOST":"localhost",
-                    "DBPORT":"3322"},
+                    "DBPORT":"3322",
+                    // "GOARCH":"386"
+                },
             // "args": ["tn3270e"]
             // "args": ["asm", "test/report.hlasm"]
-            "args": ["asm", /* "-o", "SR.go",*/ "test/instructionsASM/L.hlasm"]
+            "args": ["asm", /* "-o", "SR.go",*/ "test/instructionsASM/MVC.hlasm"]
+            // "args": ["asm", /* "-o", "SR.go",*/ "test/dcds.hlasm"]
+        // }
         }
     ]
 }

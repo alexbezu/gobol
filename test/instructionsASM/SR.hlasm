@@ -1,0 +1,19 @@
+         CSECT
+
+         L 4,FIELD4  R4 = X’FFFFFFFE’ -2 IN 2’S COMPLEMENT
+         L 5,FIELD5  R5 = X’00000028’ +40 IN 2’S COMPLEMENT
+         L 6,FIELD6  R6 = X’00000004’ +4 IN 2’S COMPLEMENT
+        
+         SR 4,4      R4 = X'00000000' = 0
+         SR 5,4      R4 = X'0000002A' = +42
+         SR 5,6      R5 = X'00000018' = +24
+         SR 6,5      R6 = X'FFFFFFE8' = -24
+
+OK       LA 15,0
+         BR 14
+FAIL     LA 15,8
+         BR 14
+
+FIELD4   DC F'-1'    FIELD4 = X'FFFFFFFF'
+FIELD5   DC F'40'    FIELD5 = X'00000028'
+FIELD6   DC F'4'     FIELD6 = X'00000004'

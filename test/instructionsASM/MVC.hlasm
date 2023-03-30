@@ -1,0 +1,31 @@
+MVC      SUBENTRY
+
+A        DC C'123'
+B        DC C'ABCD'
+C        DC C'PQ' 
+RNDBLOK  DS 0CL(RNDLEN)
+RNDLEN   EQU (*-A)
+RNDLEN2  EQU (C-A)
+* ... Result: 
+         MVC A+10(20,R1),B+3(5)
+         MVC A,B      A = 'ABC' B = 'ABCD' 
+         MVC A+1,B    A = '1AB' B = 'CBCD' 
+         MVC A+1(2),B A = '1AB' B = 'ABCD' 
+         MVC B,=C'XY' B = 'XY??' 
+* Two bytes copied from the literal pool, 
+* two unknown bytes are copied 
+         MVC B,B+1    B = 'BCDP' Left shift 
+         MVC B+1,B    B = 'AAAA' First byte is propagated 
+         MVC C,A      C = '12' A = '123' Truncation 
+         MVC A(L'C),C  A = 'PQ3' Explicit Length attribute 
+         MVC A(1000),B Assembly Error - max length is 256 bytes 
+         MVC A,B(20)   Assembly Error - Op-1 determines length
+
+         LA 15,0
+         BR 14
+FAIL     LA 15,8
+         BR 14
+
+         SUBEXIT
+
+         END

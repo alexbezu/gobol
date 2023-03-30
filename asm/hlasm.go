@@ -399,7 +399,7 @@ func SR(R1 byte, R2 byte) {
 // 'SRDL':       ('8C','R1,D2(X2,B2)',       'R0 BD DD'),
 // 'SRL':        ('88','R1,D2(X2,B2)',       'R0 BD DD'),
 // 'SRP':        ('F0','D1(L1,B1),D2(B2),I3','LI BD DD BD DD'),
-//ST is used to copy the 4 (or 8) bytes from register 1 into the 4 bytes memory location specified by operand 2
+// ST is used to copy the 4 (or 8) bytes from register 1 into the 4 bytes memory location specified by operand 2
 func ST(R1 byte, D2 interface{}, X2, B2 byte) {
 	var b *[4]byte
 	switch d2 := D2.(type) {
