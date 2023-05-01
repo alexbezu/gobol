@@ -4,6 +4,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -64,6 +65,11 @@ func main() {
 	// 	"Addr": pl.CHAR(8).INIT("Ukraine2"),
 	// }))
 
+	var outfile string
+	_ = flag.NewFlagSet("tn3270e", flag.ExitOnError)
+	asm := flag.NewFlagSet("asm", flag.ExitOnError)
+	asm.StringVar(&outfile, "o", "stdout", "filename of a translated source")
+
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: ./gobol tn3270e or ./gobol asm ...")
 		return
@@ -72,26 +78,25 @@ func main() {
 	case "tn3270e":
 		ims.TN3270Eserver()
 	case "asm":
-		file := os.Args[len(os.Args)-1]
-		ast, err := syntax.ParseFileAsm(file, nil)
+		asm.Parse(os.Args[2:])
+		file := asm.Args()
+		ast, err := syntax.ParseFileAsm(file[0], nil)
 		check(err)
 		var tr translate.Translator_asm
 		tr.Precompile_tree(ast)
 		tr.Compile_tree(ast)
 
-		switch os.Args[2] {
-		case "-o":
-			outfile := os.Args[3]
+		if outfile != "" {
 			f, err := os.Create(outfile)
 			check(err)
 			defer f.Close()
 			_, err = f.WriteString(tr.Src)
 			check(err)
-
-		default:
+		} else {
 			fmt.Println(tr.Src)
 		}
 	default:
+		flag.PrintDefaults()
 	}
 }
 
