@@ -388,6 +388,13 @@ func (s *scanner_asm) number(seenPoint bool) {
 			s.tok = _ID_asm
 			s.lit = string(s.segment())
 			return
+		case '-': // TYPE=3270-A03: glue 3270 and -A03 together in 1 token
+			s.tok = _ID_asm
+			s.nextch()
+			lit := string(s.segment())
+			s.next()
+			s.lit = lit + s.lit
+			return
 		}
 	}
 

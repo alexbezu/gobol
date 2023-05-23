@@ -86,6 +86,7 @@ func (s *TN3270screen) compile_tree(tree *syntax.File_asm) {
 		case "SEG":
 		case "END":
 		case "PRINT":
+		case "_Comment":
 		default:
 			panic("compile_tree line.Instr")
 		}
