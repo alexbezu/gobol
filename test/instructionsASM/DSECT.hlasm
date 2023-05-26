@@ -1,24 +1,30 @@
-DSECTS   SUBENTRY
 CUSTOMER DSECT
-FNAME    DS CL4 
-LNAME    DS CL5 
-BALANCE  DS PL5 
+*NAME    DS CL4 
+*NAME    DS CL5 
+*ALANCE  DS PL5 
 
 MAIN     CSECT 
+
+DSECT    SUBENTRY
 *...
          USING CUSTOMER,R7 
-         LA R7,TABLE 
-         MVC NAME1,FNAME 
-         MVC NAME2,LNAME 
+*        LA 7,TABLE 
+*        MVC NAME1,FNAME 
+*        MVC NAME2,LNAME 
+
+         L  15,=X'00000000'
+         BR 14
 
          SUBEXIT
 *... 
-TABLE    EQU * 
-         DC CL4'FRED' 
-         DC CL5'SMITH' 
-         DC PL5'432.98' 
+*ABLE    EQU * 
+*        DC CL4'FRED' 
+*        DC CL5'SMITH' 
+*        DC PL5'432.98' 
 *... 
-NAME1    DS CL10 
-NAME2    DS CL20
+*AME1    DS CL10 
+*AME2    DS CL20
+
+AFIELD   DC F'4'     AFIELD = X'00000004'
 
          END
