@@ -1,0 +1,6 @@
+{
+    "go.buildFlags": [
+        "-tags=immudb"
+    ],
+    "go.testTags": "immudb",
+}

@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"log"
 	"net"
+	"os"
 	"strings"
 
 	"github.com/alexbezu/gobol/pl"
@@ -114,7 +115,7 @@ func TN3270Eserver() {
 	}
 	defer l.Close()
 
-	connect2db()
+	Connect2db(os.Getenv("DBHOST") + ":" + os.Getenv("DBPORT"))
 	defer closedb()
 
 	for {

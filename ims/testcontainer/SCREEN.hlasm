@@ -1,0 +1,43 @@
+         TITLE 'Simple 3270 screen'                                        
+         PRINT NOGEN                                                            
+CALC     FMT 
+
+         DEV   FEAT=IGNORE,PFK=(TRANS, ENTER                           X        
+               'CALCTRAN  F    ',      F1                              X        
+               ),DSCA=X'0090',SYSMSG=SYSMSG,TYPE=(3270,2)
+                                                                        
+         DIV   TYPE=INOUT                                                       
+         DPAGE CURSOR=((4,25,CURSOR)),FILL=PT 
+                                                                              
+         DFLD  'MAINFRAME Calculator (CALC)',POS=(1,30),ATTR=(HI)           
+
+         DFLD  'Put your formula here:',POS=(4,2)                              
+FORMULA  DFLD  POS=(4,25),LTH=36,ATTR=(MOD)                                     
+         DFLD  'Result',POS=(6,2)                                              
+RESULT   DFLD  POS=(6,10),LTH=28,ATTR=(HI)  
+
+SYSMSG   DFLD  POS=(24,2),LTH=79,ATTR=(HI)  
+
+
+CALCIM   MSG   TYPE=INPUT,SOR=(HLWRLD),NXT=CALCOM                        
+         SEG                                                                    
+         MFLD  (TRANS,'CALC    E    '),LTH=13      
+*         MFLD  'E    ',LTH=5
+                                                                                
+         MFLD  CURSOR,LTH=4                   CURSOR: new pl.CHAR(4),
+         MFLD  FORMULA,LTH=36                 FORMULA: new pl.CHAR(36),
+         MFLD  RESULT,LTH=28                  RESULT:  new pl.CHAR(28),
+         MFLD  SYSMSG,LTH=79                  SYSMSG:  new pl.CHAR(79),
+         MSGEND                                                                 
+         EJECT    
+                                                                              
+CALCOM   MSG  TYPE=OUTPUT,SOR=(HLWRLD,IGNORE),NXT=CALCIM,FILL=PT         
+         SEG  
+                                                                              
+         MFLD  LTH=13                                                           
+         MFLD  CURSOR,LTH=4                                                    
+         MFLD  FORMULA,LTH=36                                                   
+         MFLD  RESULT,LTH=28    
+         MFLD  SYSMSG,LTH=79
+         MSGEND                                                                 
+         END

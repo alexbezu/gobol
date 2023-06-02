@@ -23,7 +23,7 @@ var cancel context.CancelFunc
 
 func DLI(IMS_FUNC string, pcb pl.Objer, IO_AREA pl.Objer, SSAs ...string) {
 	if conn == nil {
-		connect2db()
+		Connect2db(os.Getenv("DBHOST") + ":" + os.Getenv("DBPORT"))
 	}
 	var iopcb = pl.NUMED(pl.NumT{
 		"lterm_name": pl.CHAR(8),
@@ -158,10 +158,10 @@ func TDLI(parcnt int, IMS_FUNC string, pcb pl.Objer, IO_AREA pl.Objer, SSAs ...s
 	DLI(IMS_FUNC, pcb, IO_AREA, SSAs...)
 }
 
-func connect2db() {
-	host, port := os.Getenv("DBHOST"), os.Getenv("DBPORT")
+func Connect2db(endpoint string) {
+	// host, port := os.Getenv("DBHOST"), os.Getenv("DBPORT")
 	log.Print("Trying to connect to MQ: ")
-	conn, err = grpc.Dial(host+":"+port, grpc.WithInsecure(), grpc.WithReturnConnectionError())
+	conn, err = grpc.Dial(endpoint, grpc.WithInsecure(), grpc.WithReturnConnectionError())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	} else {
